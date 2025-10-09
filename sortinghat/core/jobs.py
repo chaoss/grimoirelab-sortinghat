@@ -31,6 +31,7 @@ import redis.exceptions
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction, connection
+from grimoirelab_toolkit.datetime import datetime_utcnow
 from rq.job import Job
 
 from .db import find_individual_by_uuid, find_organization
@@ -136,7 +137,7 @@ def get_jobs(tenant):
     jobs = (queue.jobs + started_jobs + deferred_jobs + finished_jobs + failed_jobs + scheduled_jobs)
     jobs = (job for job in jobs if job_in_tenant(job, tenant))
 
-    sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at if x.enqueued_at else datetime.datetime.utcnow(), reverse=True)
+    sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at if x.enqueued_at else datetime_utcnow(), reverse=True)
 
     logger.debug(f"List of jobs retrieved; total jobs: {len(sorted_jobs)};")
 
@@ -881,7 +882,7 @@ def schedule_task(ctx, fn, task, scheduled_datetime=None, **kwargs):
     """Schedule a task at a specific time and return the job created"""
 
     if not scheduled_datetime:
-        scheduled_datetime = datetime.datetime.now(datetime.timezone.utc)
+        scheduled_datetime = datetime_utcnow()
 
     job = get_tenant_queue(ctx.tenant).enqueue_at(datetime=scheduled_datetime,
                                                   f=fn,
@@ -942,7 +943,7 @@ def on_success_job(job, connection, result, *args, **kwargs):
         logger.error("ScheduledTask not found. Not rescheduling.")
         return
 
-    task.last_execution = datetime.datetime.now(datetime.timezone.utc)
+    task.last_execution = datetime_utcnow()
     task.executions = task.executions + 1
     task.failed = False
 
@@ -958,7 +959,7 @@ def on_success_job(job, connection, result, *args, **kwargs):
         task.scheduled_datetime = None
         task.job_id = None
     else:
-        scheduled_datetime = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=task.interval)
+        scheduled_datetime = datetime_utcnow() + datetime.timedelta(minutes=task.interval)
         ctx = job.kwargs.pop('ctx')
         schedule_task(ctx, job.func, task, scheduled_datetime=scheduled_datetime, **job.kwargs)
 
@@ -979,7 +980,7 @@ def on_failed_job(job, connection, result, *args, **kwargs):
         logger.error("ScheduledTask not found. Not rescheduling.")
         return
 
-    task.last_execution = datetime.datetime.now(datetime.timezone.utc)
+    task.last_execution = datetime_utcnow()
     task.executions = task.executions + 1
     task.failures = task.failures + 1
     task.failed = True
@@ -989,7 +990,7 @@ def on_failed_job(job, connection, result, *args, **kwargs):
         task.scheduled_datetime = None
         task.job_id = None
     else:
-        scheduled_datetime = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=task.interval)
+        scheduled_datetime = datetime_utcnow() + datetime.timedelta(minutes=task.interval)
         ctx = job.kwargs.pop('ctx')
         schedule_task(ctx, job.func, task, scheduled_datetime=scheduled_datetime, **job.kwargs)
         logger.info(f"Reschedule task ID '{task.id}' at '{scheduled_datetime}'.")
