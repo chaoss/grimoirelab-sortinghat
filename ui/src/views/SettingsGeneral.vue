@@ -331,7 +331,7 @@ export default {
       const task = await scheduleTask(
         this.$apollo,
         job,
-        interval,
+        Number(interval),
         JSON.stringify(this.tasks[job].params)
       ).catch((error) => {
         this.openSnackbar(error);
@@ -367,7 +367,7 @@ export default {
           ? this.tasks[job].customInterval
           : this.tasks[job].interval;
       const data = {
-        interval: interval,
+        interval: Number(interval),
         params: JSON.stringify(this.tasks[job].params),
       };
 

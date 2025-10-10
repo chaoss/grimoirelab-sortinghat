@@ -123,7 +123,7 @@ export default {
         });
         const response = await this.createTask(
           "import_identities",
-          interval,
+          Number(interval),
           params
         );
         if (response && !response.errors) {
@@ -145,7 +145,7 @@ export default {
           ...this.form.fields,
         });
         const data = {
-          interval: interval,
+          interval: Number(interval),
           params: params,
         };
         const response = await this.editTask(this.task.id, data);
