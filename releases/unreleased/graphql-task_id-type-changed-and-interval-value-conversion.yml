@@ -1,0 +1,14 @@
+---
+title: GraphQL task_id type changed and interval value conversion
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Updated task_id fields in DeleteScheduledTask and UpdateScheduledTask
+  to use graphene.ID() instead of graphene.Int(). In Graphene v3, this
+  caused type errors because a string value was being passed instead of
+  an integer.
+
+  Also converted interval values to numbers in the ImporterModal and
+  SettingsGeneral components to prevent similar type errors, since
+  Graphene v3 expects numeric values instead of strings.

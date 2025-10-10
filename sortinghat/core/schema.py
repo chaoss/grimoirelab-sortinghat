@@ -1550,7 +1550,7 @@ class ScheduleTask(graphene.Mutation):
 
 class DeleteScheduledTask(graphene.Mutation):
     class Arguments:
-        task_id = graphene.Int()
+        task_id = graphene.ID()
 
     deleted = graphene.Boolean()
 
@@ -1574,7 +1574,7 @@ class DeleteScheduledTask(graphene.Mutation):
 
 class UpdateScheduledTask(graphene.Mutation):
     class Arguments:
-        task_id = graphene.Int()
+        task_id = graphene.ID()
         data = ScheduledTaskInputType()
 
     task = graphene.Field(lambda: ScheduledTaskType)
