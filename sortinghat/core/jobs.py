@@ -947,12 +947,13 @@ def on_success_job(job, connection, result, *args, **kwargs):
     task.executions = task.executions + 1
     task.failed = False
 
-    # Detect if the importer backend uses 'update_from' argument and update it
+    # Detect if the importer backend uses 'from_date' argument and update it
     if task.job_type == 'import_identities':
         backends = find_import_identities_backends()
         backend_name = task.args['backend_name']
-        if 'update_from' in backends[backend_name]['args']:
-            task.args['params']['update_from'] = task.scheduled_datetime
+        if 'from_date' in backends[backend_name]['args']:
+            job.kwargs['from_date'] = task.scheduled_datetime
+            task.args['from_date'] = task.scheduled_datetime
 
     if not task.interval:
         logger.info("Interval not defined, not rescheduling task.")
