@@ -1,5 +1,49 @@
 # Releases
 
+## sortinghat 1.12.0 - (2025-10-10)
+
+**New features:**
+
+ * Merge identities when adding a LinkedIn profile (#987)\
+   When a user tries to add a LinkedIn identity that already exists to a
+   profile, the user interface now offers the option to merge the
+   identities.
+ * Redirect to the original URL after user inactivity (#995)\
+   After logging in, users are now redirected to the page they were
+   visiting when they were logged out due to inactivity.
+ * Improved UI for merge recommendations\
+   The user interface now shows more than one merge recommendation at a
+   time, and recommendations for an individual are now grouped so they
+   can be managed in batches.
+
+**Bug fixes:**
+
+ * Remove multiple LinkedIn identities (#1008)\
+   The user interface became stuck when multiple individuals  were
+   removed using the option 'Remove Linkedin profile' on the individuals
+   view.
+ * GraphQL task_id type changed and interval value conversion\
+   Updated task_id fields in DeleteScheduledTask and UpdateScheduledTask
+   to use graphene.ID() instead of graphene.Int(). In Graphene v3, this
+   caused type errors because a string value was being passed instead of
+   an integer. Also converted interval values to numbers in the
+   ImporterModal and SettingsGeneral components to prevent similar type
+   errors, since Graphene v3 expects numeric values instead of strings.
+ * Error of duplicated identities fixed during the import\
+   Duplicated identities found during the import process weren't property
+   handled which made the process to stop with an exception.
+ * Importer job rescheduled fixed\
+   Fixes a bug that caused the importer to always use the same start date
+   when importing identities after being rescheduled. It now uses the
+   start date of the current job as from_date for the next execution.
+ * Case-insensitive matching for criteria\
+   Convert the matching criteria to lowercase. This allows for case-
+   insensitive comparisons, improving the matching accuracy.
+ * Table showing jobs failing for offset-naive datetimes\
+   Showing jobs in the table combining scheduled jobs and one-time jobs
+   failed.
+
+
 ## sortinghat 1.11.0 - (2025-09-23)
 
 **New features:**

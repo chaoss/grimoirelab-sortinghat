@@ -1,9 +1,0 @@
----
-title: Case-insensitive matching for criteria
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Convert the matching criteria to lowercase.
-  This allows for case-insensitive comparisons,
-  improving the matching accuracy.

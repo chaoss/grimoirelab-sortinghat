@@ -1,9 +1,0 @@
----
-title: Error of duplicated identities fixed during the import
-category: fixed
-author: Santiago Dueñas <sduenas@bitergia.com>
-issue: null
-notes: >
-  Duplicated identities found during the import process
-  weren't property handled which made the process to
-  stop with an exception.

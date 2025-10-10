@@ -1,9 +1,0 @@
----
-title: Remove multiple LinkedIn identities
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: 1008
-notes: >
-  The user interface became stuck when multiple individuals 
-  were removed using the option 'Remove Linkedin profile' on the
-  individuals view.
