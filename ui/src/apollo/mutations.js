@@ -397,7 +397,7 @@ const IMPORT_IDENTITIES = gql`
 `;
 
 const DELETE_IMPORT_TASK = gql`
-  mutation deleteImportTask($taskId: Int!) {
+  mutation deleteImportTask($taskId: ID!) {
     deleteScheduledTask(taskId: $taskId) {
       deleted
     }
@@ -405,7 +405,7 @@ const DELETE_IMPORT_TASK = gql`
 `;
 
 const UPDATE_IMPORT_TASK = gql`
-  mutation updateImportTask($data: ScheduledTaskInputType, $taskId: Int!) {
+  mutation updateImportTask($data: ScheduledTaskInputType, $taskId: ID!) {
     updateScheduledTask(data: $data, taskId: $taskId) {
       task {
         id
@@ -445,7 +445,7 @@ const SCHEDULE_TASK = gql`
 `;
 
 const DELETE_TASK = gql`
-  mutation deleteTask($taskId: Int!) {
+  mutation deleteTask($taskId: ID!) {
     deleteScheduledTask(taskId: $taskId) {
       deleted
     }
@@ -453,7 +453,7 @@ const DELETE_TASK = gql`
 `;
 
 const UPDATE_TASK = gql`
-  mutation updateTask($taskId: Int!, $data: ScheduledTaskInputType!) {
+  mutation updateTask($taskId: ID!, $data: ScheduledTaskInputType!) {
     updateScheduledTask(taskId: $taskId, data: $data) {
       task {
         id
