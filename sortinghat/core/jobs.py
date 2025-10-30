@@ -952,8 +952,8 @@ def on_success_job(job, connection, result, *args, **kwargs):
         backends = find_import_identities_backends()
         backend_name = task.args['backend_name']
         if 'from_date' in backends[backend_name]['args']:
-            job.kwargs['from_date'] = task.scheduled_datetime
-            task.args['from_date'] = task.scheduled_datetime
+            job.kwargs['from_date'] = task.scheduled_datetime.isoformat()
+            task.args['from_date'] = task.scheduled_datetime.isoformat()
 
     if not task.interval:
         logger.info("Interval not defined, not rescheduling task.")

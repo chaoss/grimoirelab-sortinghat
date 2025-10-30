@@ -1,0 +1,8 @@
+---
+title: Importing identities with oversized fields failed
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Fix a bug where importing identities with a large field (e.g., username)
+  caused the whole process to fail. Now, such identities are skipped instead.

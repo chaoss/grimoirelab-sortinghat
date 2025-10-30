@@ -21,6 +21,8 @@
 
 import logging
 
+from django.db import DataError
+
 import sortinghat.core.importer.backends
 from grimoirelab_toolkit.introspect import inspect_signature_parameters
 from .. import api
@@ -151,6 +153,8 @@ class IdentitiesImporter:
                 nidentities += 1
             except InvalidValueError as e:
                 logger.warning(str(e))
+            except DataError as e:
+                logger.warning(f"Data error inserting identity: {e}")
             except AlreadyExistsError as e:
                 stored_identity = Identity.objects.get(source=identity.source,
                                                        email=identity.email,
