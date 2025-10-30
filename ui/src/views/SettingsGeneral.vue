@@ -147,7 +147,7 @@
                   hide-details
                 />
                 <v-checkbox
-                  v-model="tasks.unify.params.guessGithubUser"
+                  v-model="tasks.unify.params.guess_github_user"
                   label="Match GitHub users to GitHub-generated emails"
                   density="comfortable"
                   hide-details
@@ -272,7 +272,7 @@ export default {
             exclude: true,
             strict: true,
             match_source: false,
-            guessGithubUser: false,
+            guess_github_user: false,
           },
         },
       },
