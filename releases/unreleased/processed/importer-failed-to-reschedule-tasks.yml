@@ -1,9 +1,0 @@
----
-title: Importer failed to reschedule tasks
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Fix a bug that prevented the importer from rescheduling tasks
-  because `from_date` was not JSON serializable when inserting into
-  the database.

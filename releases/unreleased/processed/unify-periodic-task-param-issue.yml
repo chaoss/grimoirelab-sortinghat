@@ -1,8 +1,0 @@
----
-title: Unify periodic task param issue
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-   Fixed an issue where creating a unify periodic task with
-   "Guess GitHub User” enabled failed.
