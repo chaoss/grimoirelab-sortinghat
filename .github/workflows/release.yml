@@ -30,6 +30,17 @@ jobs:
           artifact-name: sortinghat-dist
           artifact-path: dist
           skip-checkout: yes
+      - name: Build UI package
+        working-directory: ./ui/package
+        run: |
+          yarn install
+          yarn build
+          yarn pack --filename sortinghat-ui.tgz
+      - name: Upload UI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sortinghat-ui
+          path: ./ui/package/sortinghat-ui.tgz
 
   tests:
     needs: [build]
@@ -77,6 +88,15 @@ jobs:
         uses: chaoss/grimoirelab-github-actions/release@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download UI package
+        uses: actions/download-artifact@v5
+        with:
+          name: sortinghat-ui
+      - name: Add UI package to the release assets
+        run: |
+          gh release upload ${GITHUB_REF#refs/tags/} sortinghat-ui.tgz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     needs: [tests]
