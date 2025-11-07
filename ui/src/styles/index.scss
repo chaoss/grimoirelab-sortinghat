@@ -1,4 +1,4 @@
-@import '_typography';
+@use "sass:color";
 
 $selected-color: #003756;
 $active-color: #f4bc00;
@@ -50,7 +50,7 @@ $border-color: rgba(0, 0, 0, 0.12);
 
 // Selected table item
 .selected {
-  background-color: lighten($selected-color, 80%);
+  background-color: color.adjust($selected-color, $lightness: 80%);
 }
 
 .selected,
@@ -62,7 +62,7 @@ $border-color: rgba(0, 0, 0, 0.12);
 .theme--light.v-data-table
   tbody
   tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
-  background-color: desaturate(lighten($selected-color, 75%), 30%);
+  background-color: color.adjust($selected-color, $lightness: 75%, $saturation: -30%);
   transition: background-color 30ms linear;
 }
 
@@ -70,7 +70,7 @@ $border-color: rgba(0, 0, 0, 0.12);
   tbody
   .dragging:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
 .dragging {
-  background-color: desaturate(lighten($selected-color, 75%), 30%);
+  background-color: color.adjust($selected-color, $lightness: 75%, $saturation: -30%);
   box-shadow: inset 4px 0 0 $selected-color;
 }
 
@@ -104,7 +104,7 @@ $border-color: rgba(0, 0, 0, 0.12);
   tbody
   .dropzone:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
 .dropzone:not(.locked) {
-  background: desaturate(lighten($active-color, 40%), 20%);
+  background-color: color.adjust($active-color, $lightness: 40%, $saturation: -20%);
 }
 
 .v-pagination__item--is-active .v-btn--variant-text {
