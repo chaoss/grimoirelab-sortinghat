@@ -1,5 +1,5 @@
 <template>
-  <v-main>
+  <v-container>
     <loading-spinner v-if="$apollo.loading" label="Loading" />
     <v-container v-else-if="individual" class="mx-auto mb-8">
       <v-row>
@@ -57,6 +57,7 @@
                     v-bind="props"
                     class="mr-1"
                     data-testid="review-btn"
+                    size="small"
                     variant="text"
                     @click="review(this.mk)"
                   >
@@ -76,6 +77,7 @@
                     :icon="individual.isBot ? 'mdi-robot' : 'mdi-robot-outline'"
                     v-bind="props"
                     class="mr-1"
+                    size="small"
                     variant="text"
                     @click="updateProfile({ isBot: !individual.isBot })"
                   >
@@ -92,6 +94,7 @@
                       isInWorkspace ? 'In workspace' : 'Add to workspace'
                     "
                     class="mr-1"
+                    size="small"
                     variant="text"
                     v-bind="props"
                     :icon="isInWorkspace ? 'mdi-pin' : 'mdi-pin-outline'"
@@ -110,6 +113,7 @@
                     class="mr-1"
                     v-bind="props"
                     icon="mdi-lock"
+                    size="small"
                     variant="text"
                     @click="unlock"
                   >
@@ -124,6 +128,7 @@
                     class="mr-1"
                     v-bind="props"
                     icon="mdi-lock-outline"
+                    size="small"
                     variant="text"
                     @click="lock"
                   >
@@ -137,6 +142,7 @@
                     aria-label="See more actions"
                     v-bind="props"
                     icon="mdi-dots-vertical"
+                    size="small"
                     variant="text"
                   >
                   </v-btn>
@@ -179,7 +185,7 @@
 
           <v-row class="section mb-4">
             <v-container class="pb-6" fluid>
-              <v-list-subheader class="text-subtitle-2 mb-4"
+              <v-list-subheader class="text-subtitle-2 font-weight-medium mb-4"
                 >Profile</v-list-subheader
               >
               <v-row>
@@ -438,7 +444,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-main>
+  </v-container>
 </template>
 
 <script>
@@ -947,7 +953,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 
 .section {
   font-size: 0.875rem;
