@@ -138,7 +138,7 @@
 
 <script>
 import DateInput from "./DateInput.vue";
-import OrganizationSelector from "./OrganizationSelector";
+import OrganizationSelector from "./OrganizationSelector.vue";
 
 export default {
   name: "ProfileModal",

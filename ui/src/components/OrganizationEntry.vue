@@ -175,7 +175,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 tr {
   cursor: pointer;
 }

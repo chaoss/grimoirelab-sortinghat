@@ -189,6 +189,7 @@
               :disabled="isLocked"
               aria-label="Add to team"
               icon="mdi-plus"
+              size="small"
               variant="text"
               @click="$emit('openTeamModal', item.group.name)"
             >
@@ -206,6 +207,7 @@
               v-bind="props"
               aria-label="Remove affiliation"
               icon="mdi-delete"
+              size="small"
               variant="text"
               :disabled="isLocked"
               @click="
@@ -294,7 +296,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 .indented {
   margin-left: 56px;
   margin-right: 12px;

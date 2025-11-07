@@ -1,5 +1,5 @@
 <template>
-  <v-main class="mt-md-3">
+  <v-container class="mt-md-3">
     <loading-spinner
       v-if="$apollo.queries.organizations.loading"
       label="Loading"
@@ -8,7 +8,11 @@
       <div class="section d-flex flex-column">
         <h1 class="header font-weight-medium text-h6 pa-8">
           {{ organization.name }}
-          <v-btn @click="confirmDelete(deleteOrganization, organization.name)">
+          <v-btn
+            size="small"
+            variant="outlined"
+            @click="confirmDelete(deleteOrganization, organization.name)"
+          >
             <v-icon size="small" start>mdi-delete</v-icon>
             Delete
           </v-btn>
@@ -17,7 +21,7 @@
           <v-col sm="12" md="4" class="border-right">
             <section class="pa-4 pt-2">
               <v-list-subheader
-                class="d-flex justify-space-between text-subtitle-2 ml-4"
+                class="d-flex justify-space-between text-subtitle-2 font-weight-medium ml-4"
               >
                 Teams
                 <edit-dialog
@@ -214,7 +218,7 @@
                   <v-container>
                     <v-list>
                       <v-list-subheader
-                        class="d-flex justify-space-between text-subtitle-2"
+                        class="d-flex justify-space-between text-subtitle-2 font-weight-medium"
                       >
                         Domains
                         <v-menu v-model="menu" :close-on-content-click="false">
@@ -230,7 +234,9 @@
                           </template>
                           <v-card min-width="200">
                             <v-card-text>
-                              <v-list-subheader class="pl-0 text-subtitle-2">
+                              <v-list-subheader
+                                class="pl-0 text-subtitle-2 font-weight-medium"
+                              >
                                 New domain
                               </v-list-subheader>
                               <v-text-field
@@ -294,7 +300,7 @@
                     </v-list>
                     <v-list>
                       <v-list-subheader
-                        class="d-flex justify-space-between text-subtitle-2"
+                        class="d-flex justify-space-between text-subtitle-2 font-weight-medium"
                       >
                         Aliases
                         <edit-dialog
@@ -313,6 +319,7 @@
                         <template v-slot:append>
                           <v-btn
                             aria-label="Delete alias"
+                            size="small"
                             variant="text"
                             icon="mdi-delete"
                             @click="confirmDelete(deleteAlias, alias.alias)"
@@ -365,7 +372,7 @@
     </v-container>
 
     <generic-modal v-model:is-open="modalProps.isOpen" v-bind="modalProps" />
-  </v-main>
+  </v-container>
 </template>
 <script>
 import {
@@ -691,7 +698,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 
 :deep(.v-treeview-node__toggle),
 :deep(.v-treeview-node__level) {
@@ -735,7 +742,7 @@ export default {
   height: 100%;
 
   .section {
-    min-height: 100%;
+    min-height: calc(100% - 80px);
   }
 }
 
