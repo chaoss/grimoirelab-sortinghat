@@ -10,6 +10,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    outputs:
+      filename: ${{ steps.build_ui_tgz.outputs.filename }}
     strategy:
       matrix:
         node-version: [24.x]
@@ -30,6 +32,25 @@ jobs:
           artifact-name: sortinghat-dist
           artifact-path: dist
           skip-checkout: yes
+      - name: Build UI package
+        id: build_ui_tgz
+        working-directory: ./ui/package
+        run: |
+          yarn install
+          yarn build
+
+          filename="sortinghat-ui-${{ github.ref_name }}.tgz"
+          yarn pack --filename "$filename"
+
+          tgz_path="$(pwd)/$filename"
+
+          echo "filename=$filename" >> "$GITHUB_OUTPUT"
+          echo "tgz_path=$tgz_path" >> "$GITHUB_OUTPUT"
+      - name: Upload UI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sortinghat-ui
+          path: ${{ steps.build_ui_tgz.outputs.tgz_path }}
 
   tests:
     needs: [build]
@@ -70,13 +91,22 @@ jobs:
           poetry run python manage.py test --settings=config.settings.config_testing_tenant
 
   release:
-    needs: [tests]
+    needs: [build, tests]
     runs-on: ubuntu-latest
     steps:
       - name: Create a new release on the repository
         uses: chaoss/grimoirelab-github-actions/release@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download UI package
+        uses: actions/download-artifact@v5
+        with:
+          name: sortinghat-ui
+      - name: Add UI package to the release assets
+        run: |
+          gh release upload ${GITHUB_REF#refs/tags/} ${{ needs.build.outputs.filename }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     needs: [tests]

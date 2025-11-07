@@ -28,7 +28,8 @@ To test your changes locally, build and link the package to use it into your
 current project. Use `yarn build --watch` to rebuild when the code changes.
 
 ```
-cd sortinghat/ui/package
+cd ui/package
+yarn install
 yarn build
 yarn link
 

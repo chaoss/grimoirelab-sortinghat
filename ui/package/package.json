@@ -1,6 +1,7 @@
 {
   "name": "sortinghat-ui-core",
-  "version": "0.0.0",
+  "version": "1.14.3",
+  "license": "GPL-3.0-or-later",
   "type": "module",
   "main": "./dist/sortinghat-ui.cjs",
   "module": "./dist/sortinghat-ui.js",
