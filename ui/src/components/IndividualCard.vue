@@ -133,8 +133,8 @@
 </template>
 
 <script>
-import Avatar from "./Avatar";
-import ExpandedIndividual from "./ExpandedIndividual";
+import Avatar from "./Avatar.vue";
+import ExpandedIndividual from "./ExpandedIndividual.vue";
 
 export default {
   name: "individualcard",
@@ -315,7 +315,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 
 :deep(.v-card-item) {
   align-items: baseline;
