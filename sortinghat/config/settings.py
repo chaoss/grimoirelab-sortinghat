@@ -270,6 +270,28 @@ DATABASES = {
 }
 
 #
+# Redis configuration
+#
+# You MUST set the Redis parameters in order to run
+# SortingHat jobs and workers.
+#
+
+REDIS_CONFIG = {
+    'HOST': os.environ.get('SORTINGHAT_REDIS_HOST', '127.0.0.1'),
+    'PORT': os.environ.get('SORTINGHAT_REDIS_PORT', 6379),
+    'PASSWORD': os.environ.get('SORTINGHAT_REDIS_PASSWORD', ''),
+    'ASYNC': os.environ.get('SORTINGHAT_WORKERS_ASYNC', True),
+    'DB': os.environ.get('SORTINGHAT_REDIS_DB', 0),
+    'SSL': os.environ.get('SORTINGHAT_REDIS_SSL', False),
+    'SSL_CERT_REQS': os.environ.get('SORTINGHAT_REDIS_SSL_CERT_REQS', "none"),
+    'REDIS_CLIENT_KWARGS': {
+        'ssl_ca_certs': os.environ.get('SORTINGHAT_REDIS_SSL_CA_CERTS', None),
+        'ssl_certfile': os.environ.get('SORTINGHAT_REDIS_SSL_CERTFILE', None),
+        'ssl_keyfile': os.environ.get('SORTINGHAT_REDIS_SSL_KEYFILE', None),
+    }
+}
+
+#
 # SortingHat workers
 #
 # SortingHat uses RQ to run background and async jobs.
@@ -283,13 +305,7 @@ DATABASES = {
 #
 
 RQ_QUEUES = {
-    'default': {
-        'HOST': os.environ.get('SORTINGHAT_REDIS_HOST', '127.0.0.1'),
-        'PORT': os.environ.get('SORTINGHAT_REDIS_PORT', 6379),
-        'PASSWORD': os.environ.get('SORTINGHAT_REDIS_PASSWORD', ''),
-        'ASYNC': os.environ.get('SORTINGHAT_WORKERS_ASYNC', True),
-        'DB': os.environ.get('SORTINGHAT_REDIS_DB', 0),
-    }
+    'default': REDIS_CONFIG
 }
 
 RQ = {
@@ -339,13 +355,7 @@ if MULTI_TENANT:
     })
 
     RQ_QUEUES.update({
-        tenant: {
-            'HOST': os.environ.get('SORTINGHAT_REDIS_HOST', '127.0.0.1'),
-            'PORT': os.environ.get('SORTINGHAT_REDIS_PORT', 6379),
-            'PASSWORD': os.environ.get('SORTINGHAT_REDIS_PASSWORD', ''),
-            'ASYNC': os.environ.get('SORTINGHAT_WORKERS_ASYNC', True),
-            'DB': os.environ.get('SORTINGHAT_REDIS_DB', 0),
-        }
+        tenant: REDIS_CONFIG
         for tenant in TENANTS_DEDICATED_QUEUES
     })
 
