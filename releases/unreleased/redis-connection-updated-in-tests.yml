@@ -1,0 +1,9 @@
+---
+title: Redis connection updated in tests
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  The package django-rq updated the references to get_redis_connection
+  and that caused tests to fail. Fix with the new reference.
+

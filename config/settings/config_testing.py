@@ -103,7 +103,7 @@ class FakeRedisConn:
         return self.conn
 
 
-django_rq.queues.get_redis_connection = FakeRedisConn()
+django_rq.connection_utils.get_redis_connection = FakeRedisConn()
 
 
 RQ_QUEUES = {
