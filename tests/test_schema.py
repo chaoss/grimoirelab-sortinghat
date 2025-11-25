@@ -5370,7 +5370,7 @@ class TestQueryJob(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        conn = django_rq.queues.get_redis_connection(None, True)
+        conn = django_rq.get_connection()
         conn.flushall()
 
         self.user = get_user_model().objects.create(username='test')
@@ -9926,7 +9926,7 @@ class TestAffiliateMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        conn = django_rq.queues.get_redis_connection(None, True)
+        conn = django_rq.get_connection()
         conn.flushall()
 
         self.user = get_user_model().objects.create(username='test',
@@ -10179,7 +10179,7 @@ class TestUnifyMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        conn = django_rq.queues.get_redis_connection(None, True)
+        conn = django_rq.get_connection()
         conn.flushall()
 
         self.user = get_user_model().objects.create(username='test', is_superuser=True)
@@ -10807,7 +10807,7 @@ class TestGenderizeMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        conn = django_rq.queues.get_redis_connection(None, True)
+        conn = django_rq.get_connection()
         conn.flushall()
 
         self.user = get_user_model().objects.create(username='test',
@@ -11751,7 +11751,7 @@ class TestScheduleTaskMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        conn = django_rq.queues.get_redis_connection(None, True)
+        conn = django_rq.get_connection()
         conn.flushall()
 
         self.user = get_user_model().objects.create(username='test', is_superuser=True)
