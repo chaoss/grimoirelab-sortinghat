@@ -107,7 +107,7 @@
               class="mt-2 bg-surface-secondary"
               variant="outlined"
               size="small"
-              @click="mergeOrgs(mergeAlias, organization)"
+              @click="mergeOrgs(mergeAlias, form.name)"
             >
               Merge
             </v-btn>
