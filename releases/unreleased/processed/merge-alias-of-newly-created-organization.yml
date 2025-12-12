@@ -1,9 +1,0 @@
----
-title: Merge alias of newly created organization
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: null
-notes: >
-  The user interface raised an error when trying to merge an
-  alias of an organization that had just been created using
-  the same dialog.

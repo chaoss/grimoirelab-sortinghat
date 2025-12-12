@@ -1,8 +1,0 @@
----
-title: Missing migrations from model changes
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Adds missing database migrations, including an index update and
-  a fix to tenant permission defaults.
