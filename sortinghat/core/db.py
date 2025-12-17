@@ -1145,6 +1145,8 @@ def add_scheduled_task(trxl, job_type, interval=None, args=None, job_id=None):
 
     :returns: a new ImportIdentitiesTask
     """
+    unique_job_types = ['affiliate', 'unify']
+
     # Setting operation arguments before they are modified
     op_args = {
         'job_type': job_type,
@@ -1154,6 +1156,9 @@ def add_scheduled_task(trxl, job_type, interval=None, args=None, job_id=None):
     }
 
     validate_field('job_type', job_type)
+
+    if job_type in unique_job_types and ScheduledTask.objects.filter(job_type=job_type).exists():
+        raise ValueError(f"A scheduled task of type '{job_type}' already exists in the registry")
 
     if interval and interval < 0:
         raise ValueError("'interval' must be a positive number or 0.")

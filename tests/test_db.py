@@ -61,6 +61,7 @@ DUPLICATED_ID_ERROR = "Identity '1234567890ABCDFE' already exists in the registr
 DUPLICATED_ID_DATA_ERROR = "Identity 'John Smith-jsmith@example.org-jsmith-scm' already exists in the registry"
 DUPLICATED_ENROLLMENT_ERROR = r"Identity '1234567890ABCDFE-.+' already exists in the registry"
 DUPLICATED_ALIAS_ERROR = "Alias 'Example Inc.' already exists in the registry"
+DUPLICATED_JOBY_TYPE_ERROR = "A scheduled task of type '{type}' already exists in the registry"
 NAME_NONE_ERROR = "'name' cannot be None"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 NAME_WHITESPACES_ERROR = "'name' cannot be composed by whitespaces only"
@@ -3179,6 +3180,45 @@ class TestAddScheduledTask(TestCase):
         # Check if operations have not been generated after the failure
         operations = Operation.objects.all()
         self.assertEqual(len(operations), 0)
+
+    def test_task_duplicate_job_type(self):
+        """Check whether multiple 'affiliate' and 'unify' tasks cannot be scheduled"""
+
+        db.add_scheduled_task(self.trxl,
+                              job_type='affiliate',
+                              interval=1,
+                              args={})
+        db.add_scheduled_task(self.trxl,
+                              job_type='unify',
+                              interval=1,
+                              args={})
+        with self.assertRaisesRegex(ValueError, DUPLICATED_JOBY_TYPE_ERROR.format(type='affiliate')):
+            db.add_scheduled_task(self.trxl,
+                                  job_type='affiliate',
+                                  interval=1,
+                                  args={})
+        with self.assertRaisesRegex(ValueError, DUPLICATED_JOBY_TYPE_ERROR.format(type='unify')):
+            db.add_scheduled_task(self.trxl,
+                                  job_type='unify',
+                                  interval=1,
+                                  args={})
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 2)
+
+        # Check if other types of jobs can be duplicated
+        db.add_scheduled_task(self.trxl,
+                              job_type='import_identities',
+                              interval=1,
+                              args={})
+        db.add_scheduled_task(self.trxl,
+                              job_type='import_identities',
+                              interval=1,
+                              args={})
+
+        tasks = ScheduledTask.objects.all()
+        self.assertEqual(len(tasks), 4)
 
     def test_task_invalid_interval(self):
         """Check whether a task with wrong interval cannot be added"""
