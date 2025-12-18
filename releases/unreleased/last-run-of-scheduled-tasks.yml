@@ -1,0 +1,11 @@
+---
+title: Last run of scheduled tasks
+category: fixed
+author: Eva Millán <evamillan@bitergia.com>
+issue: 1018
+notes: >
+  The information about the last run of scheduled tasks on the
+  user interface was not coherent when there was more than one
+  'affiliate' and 'unify' task. Now, the system only allows to
+  schedule one recurrent task of each of those types and the
+  user interface shows the correct date.
