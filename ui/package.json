@@ -65,7 +65,7 @@
     "prettier": "^2.4.1",
     "sass": "1.26.5",
     "sass-loader": "^10.4.1",
-    "storybook": "8.6.14",
+    "storybook": "8.6.15",
     "vue-loader": "^16.4.1",
     "webpack-plugin-vuetify": "^3.0.3"
   },
