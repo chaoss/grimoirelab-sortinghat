@@ -8,16 +8,13 @@
   />
 </template>
 <script>
-import {
-  getImporterTypes,
-  getImportIdentitiesTasks,
-} from "./../apollo/queries";
+import { getImporterTypes, getImportIdentitiesTasks } from "../apollo/queries";
 import {
   scheduleTask,
   deleteImportTask,
   updateImportTask,
-} from "./../apollo/mutations";
-import TasksTable from "./../components/TasksTable";
+} from "../apollo/mutations";
+import TasksTable from "../components/TasksTable";
 
 export default {
   name: "SettingsSync",

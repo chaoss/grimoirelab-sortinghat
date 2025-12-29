@@ -301,7 +301,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 
 .theme--light.v-data-table tbody .expanded td:not(.v-data-table__mobile-row) {
   border: 0;

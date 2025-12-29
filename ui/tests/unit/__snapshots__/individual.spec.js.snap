@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Individual Matches snapshot 1`] = `
 <div
@@ -8,11 +8,9 @@ exports[`Individual Matches snapshot 1`] = `
     class="v-application__wrap"
   >
     
-    <main
-      class="v-main"
-      style="--v-layout-left: 0px; --v-layout-right: 0px; --v-layout-top: 0px; --v-layout-bottom: 0px; transition: none;"
+    <div
+      class="v-container v-locale--is-ltr"
     >
-      
       <div
         class="v-container v-locale--is-ltr mx-auto mb-8"
       >
@@ -313,7 +311,7 @@ exports[`Individual Matches snapshot 1`] = `
                 class="v-container v-container--fluid v-locale--is-ltr pb-6"
               >
                 <div
-                  class="v-list-subheader text-subtitle-2 mb-4"
+                  class="v-list-subheader text-subtitle-2 font-weight-medium mb-4"
                 >
                   <div
                     class="v-list-subheader__text"
@@ -1462,7 +1460,7 @@ exports[`Individual Matches snapshot 1`] = `
                   class="fit-content"
                 >
                   <div
-                    class="v-list-subheader text-subtitle-2 mb-2"
+                    class="v-list-subheader text-subtitle-2 font-weight-medium mb-2"
                   >
                     <div
                       class="v-list-subheader__text"
@@ -1502,8 +1500,7 @@ exports[`Individual Matches snapshot 1`] = `
       <!---->
       <!---->
       
-      
-    </main>
+    </div>
     
   </div>
 </div>
