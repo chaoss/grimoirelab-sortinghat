@@ -79,3 +79,9 @@ export default {
   },
 };
 </script>
+<style>
+#username,
+#password {
+  opacity: 1;
+}
+</style>
