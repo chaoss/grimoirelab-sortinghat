@@ -1,5 +1,9 @@
 <template>
-  <v-dialog :model-value="isOpen" :max-width="organization ? '550px' : '740px'">
+  <v-dialog
+    :model-value="isOpen"
+    :max-width="organization ? '550px' : '740px'"
+    @click:outside="onClose"
+  >
     <v-card class="pa-3">
       <v-card-title class="headline">{{ title }}</v-card-title>
       <v-card-text>
