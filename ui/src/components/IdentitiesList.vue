@@ -5,6 +5,8 @@
       <v-btn
         v-if="!compact"
         :disabled="identitiesCount === 1 || isLocked"
+        size="small"
+        variant="outlined"
         @click="splitAll"
       >
         <v-icon size="small" start>mdi-call-split</v-icon>
@@ -95,6 +97,7 @@
             <template v-slot:activator="{ props }">
               <v-btn
                 icon="mdi-call-split"
+                size="small"
                 variant="text"
                 :disabled="identity.uuid === uuid || isLocked"
                 v-bind="props"
@@ -113,6 +116,7 @@
                 v-if="draggable"
                 :disabled="identity.uuid === uuid || isLocked"
                 v-bind="props"
+                size="small"
               >
                 mdi-drag-vertical
               </v-icon>
@@ -207,7 +211,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 
 .draggable {
   cursor: pointer;

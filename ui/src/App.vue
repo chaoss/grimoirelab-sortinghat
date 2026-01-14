@@ -47,11 +47,13 @@
         </v-menu>
       </div>
     </v-app-bar>
-    <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" />
-      </transition>
-    </router-view>
+    <v-main>
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </v-main>
   </v-app>
 </template>
 
@@ -80,6 +82,7 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "styles/_typography";
 @import "styles/index.scss";
 .fade-enter-active,
 .fade-leave-active {
