@@ -2176,7 +2176,7 @@ class SortingHatQuery:
     def resolve_scheduled_tasks(self, info, filters=None, page=1,
                                 page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
 
-        query = ScheduledTask.objects.order_by('created_at')
+        query = ScheduledTask.objects.order_by('-last_execution')
 
         if filters and 'backend' in filters:
             query = query.filter(args__backend_name=filters['backend'])
