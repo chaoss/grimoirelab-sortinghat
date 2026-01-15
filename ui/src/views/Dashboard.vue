@@ -15,6 +15,7 @@
       @updateOrganizations="updateOrganizations"
       @updateWorkspace="updateWorkspace"
       @updateStore="saveWorkspace($event)"
+      @fetchWorkspace="fetchWorkspaceIndividuals"
     />
     <v-row>
       <v-col lg="8" sm="12" class="pt-0 pl-0 pr-sm-0 pr-lg-4">
@@ -39,6 +40,7 @@
           :withdraw="withdraw"
           :update-enrollment="updateEnrollment"
           :recommend-matches="recommendMatches"
+          :expand-individual="expandIndividual"
           @saveIndividuals="addSavedIndividuals"
           @setFilters="filters = $event"
           @updateOrganizations="updateOrganizations"
@@ -90,6 +92,7 @@ import {
   getTeams,
   getPaginatedMergeRecommendations,
   getRecommendedMergesCount,
+  getExpandedIndividual,
 } from "../apollo/queries";
 import {
   addIdentity,
@@ -374,6 +377,20 @@ export default {
     async deleteRecommendations() {
       const response = await deleteMergeRecommendations(this.$apollo);
       return response;
+    },
+    async expandIndividual(mk) {
+      const response = await getExpandedIndividual(this.$apollo, mk);
+      return response;
+    },
+    async fetchWorkspaceIndividuals() {
+      const responses = await Promise.all(
+        this.savedIndividuals.map(async (item) => {
+          const res = await this.expandIndividual(item.uuid);
+          return res.data.individuals.entities[0];
+        })
+      );
+      const updatedIndividuals = formatIndividuals(responses);
+      this.savedIndividuals = updatedIndividuals;
     },
   },
   async mounted() {

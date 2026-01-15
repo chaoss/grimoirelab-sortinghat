@@ -147,8 +147,8 @@
           :is-selected="isSelected([internalItem])"
           :is-highlighted="item.uuid === highlightIndividual"
           :is-expandable="isExpandable"
-          @dblclick="toggleExpand(internalItem)"
-          @expand="toggleExpand(internalItem)"
+          @dblclick="expandItem(isExpanded, toggleExpand, item, internalItem)"
+          @expand="expandItem(isExpanded, toggleExpand, item, internalItem)"
           @edit="updateProfileInfo($event, item.uuid)"
           @saveIndividuals="$emit('saveIndividuals', [item])"
           @dragstart="startDrag(internalItem, isSelected, toggleSelect, $event)"
@@ -316,6 +316,7 @@
 import {
   mergeIndividuals,
   moveIdentity,
+  formatIndividual,
   formatIndividuals,
 } from "../utils/actions";
 import { enrollMixin } from "../mixins/enroll";
@@ -423,6 +424,10 @@ export default {
     outlined: {
       type: Boolean,
       required: false,
+    },
+    expandIndividual: {
+      type: Function,
+      required: true,
     },
   },
   data() {
@@ -796,6 +801,18 @@ export default {
         open: true,
         uuid: uuid,
       });
+    },
+    async getExpandedIndividual(item) {
+      const response = await this.expandIndividual(item.uuid);
+      const newData = formatIndividual(response.data.individuals.entities[0]);
+      return newData;
+    },
+    async expandItem(isExpanded, toggleExpand, item, internalItem) {
+      if (!isExpanded(internalItem)) {
+        const data = await this.getExpandedIndividual(item);
+        Object.assign(item, data);
+      }
+      toggleExpand(internalItem);
     },
   },
 };

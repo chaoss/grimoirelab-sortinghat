@@ -205,6 +205,7 @@ export default {
       this.savedIndividuals.push(...newIndividuals);
       this.isDragging = false;
       this.$emit("deselect");
+      this.$emit("fetchWorkspace");
     },
     async merge(fromUuids, toUuid) {
       const response = await this.mergeItems(fromUuids, toUuid);
