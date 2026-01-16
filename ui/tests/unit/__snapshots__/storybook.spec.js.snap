@@ -13919,7 +13919,9 @@ exports[`Storybook Tests IndividualsTable Default 1`] = `
               class="v-data-table__tbody"
               role="rowgroup"
             >
-              <!---->
+              
+              <!--v-if-->
+              
               
               
               
@@ -16194,7 +16196,9 @@ exports[`Storybook Tests IndividualsTable Expandable 1`] = `
               class="v-data-table__tbody"
               role="rowgroup"
             >
-              <!---->
+              
+              <!--v-if-->
+              
               
               
               
@@ -18757,7 +18761,9 @@ exports[`Storybook Tests IndividualsTable HiddenHeader 1`] = `
               class="v-data-table__tbody"
               role="rowgroup"
             >
-              <!---->
+              
+              <!--v-if-->
+              
               
               
               
@@ -21032,14 +21038,11 @@ exports[`Storybook Tests IndividualsTable OnError 1`] = `
               class="v-data-table__tbody"
               role="rowgroup"
             >
-              <!---->
-              <tr
-                class="v-data-table-rows-no-data"
-              >
+              
+              <tr>
                 <td
                   colspan="5"
                 >
-                  
                   <div
                     class="v-alert v-theme--light text-error v-alert--density-compact v-alert--variant-tonal text-left"
                     role="alert"
@@ -21073,6 +21076,19 @@ exports[`Storybook Tests IndividualsTable OnError 1`] = `
                     <!---->
                     <!---->
                   </div>
+                </td>
+              </tr>
+              
+              <tr
+                class="v-data-table-rows-no-data"
+              >
+                <td
+                  colspan="5"
+                >
+                  
+                  <p>
+                    No data available
+                  </p>
                   
                 </td>
               </tr>
@@ -22212,7 +22228,9 @@ exports[`Storybook Tests IndividualsTable Outlined 1`] = `
               class="v-data-table__tbody"
               role="rowgroup"
             >
-              <!---->
+              
+              <!--v-if-->
+              
               
               
               
@@ -25790,7 +25808,9 @@ exports[`Storybook Tests OrganizationsTable Groups 1`] = `
             class="v-data-table__tbody"
             role="rowgroup"
           >
-            <!---->
+            
+            <!--v-if-->
+            
             
             
             
@@ -26792,14 +26812,11 @@ exports[`Storybook Tests OrganizationsTable OnError 1`] = `
             class="v-data-table__tbody"
             role="rowgroup"
           >
-            <!---->
-            <tr
-              class="v-data-table-rows-no-data"
-            >
+            
+            <tr>
               <td
-                colspan="3"
+                colspan="5"
               >
-                
                 <div
                   class="v-alert v-theme--light text-error v-alert--density-compact v-alert--variant-tonal text-left"
                   role="alert"
@@ -26833,6 +26850,19 @@ exports[`Storybook Tests OrganizationsTable OnError 1`] = `
                   <!---->
                   <!---->
                 </div>
+              </td>
+            </tr>
+            
+            <tr
+              class="v-data-table-rows-no-data"
+            >
+              <td
+                colspan="3"
+              >
+                
+                <p>
+                  No data available
+                </p>
                 
               </td>
             </tr>
@@ -27403,7 +27433,9 @@ exports[`Storybook Tests OrganizationsTable Organizations 1`] = `
             class="v-data-table__tbody"
             role="rowgroup"
           >
-            <!---->
+            
+            <!--v-if-->
+            
             
             
             
@@ -32209,7 +32241,9 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                     class="v-data-table__tbody"
                     role="rowgroup"
                   >
-                    <!---->
+                    
+                    <!--v-if-->
+                    
                     
                     
                     
