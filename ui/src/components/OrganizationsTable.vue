@@ -100,13 +100,19 @@
         </div>
       </template>
       <template v-slot:no-data>
-        <v-alert v-if="error" class="text-left" density="compact" type="error">
-          {{ error }}
-        </v-alert>
-        <p v-else-if="Object.keys(filters).length > 0">
+        <p v-if="Object.keys(filters).length > 0">
           No results matched your search.
         </p>
         <p v-else>No data available</p>
+      </template>
+      <template v-slot:[`body.prepend`]>
+        <tr v-if="error && !loading">
+          <td colspan="5">
+            <v-alert class="text-left" density="compact" type="error">
+              {{ error }}
+            </v-alert>
+          </td>
+        </tr>
       </template>
     </v-data-table-server>
 
