@@ -1826,10 +1826,14 @@ class SortingHatQuery:
                             page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                             order_by='mk',
                             **kwargs):
-        if not order_by:
+        query = Individual.objects.prefetch_related('identities').all()
+
+        if order_by and (order_by in ['-identitiesCount', 'identitiesCount']):
+            query = query.annotate(identities_count=Count('identities'))
+        elif not order_by:
             order_by = 'mk'
 
-        query = Individual.objects.annotate(identities_count=Count('identities')).order_by(to_snake_case(order_by))
+        query = query.order_by(to_snake_case(order_by))
 
         if filters and 'uuid' in filters:
             indv_uuid = filters['uuid']
@@ -1841,13 +1845,13 @@ class SortingHatQuery:
         if filters and 'term' in filters:
             search_term = filters['term']
             # Filter matching individuals by their mk and their identities
-            query = query.filter(mk__in=Subquery(Identity.objects
-                                                 .filter(Q(name__icontains=search_term) |
-                                                         Q(email__icontains=search_term) |
-                                                         Q(username__icontains=search_term) |
-                                                         Q(individual__profile__name__icontains=search_term) |
-                                                         Q(individual__profile__email__icontains=search_term))
-                                                 .values_list('individual__mk')))
+            query = query.filter(Q(profile__name__icontains=search_term) |
+                                 Q(profile__email__icontains=search_term) |
+                                 Q(mk__in=Subquery(Identity.objects
+                                                   .filter(Q(name__icontains=search_term) |
+                                                           Q(email__icontains=search_term) |
+                                                           Q(username__icontains=search_term))
+                                                   .values_list('individual__mk'))))
         if filters and 'is_locked' in filters:
             query = query.filter(is_locked=filters['is_locked'])
         if filters and 'is_bot' in filters:

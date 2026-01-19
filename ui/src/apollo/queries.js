@@ -93,18 +93,32 @@ const GET_PAGINATED_INDIVIDUALS = gql`
       filters: $filters
       orderBy: $orderBy
     ) {
-      entities {
-        ...individual
-      }
       pageInfo {
         page
-        pageSize
         numPages
         totalResults
       }
+      entities {
+        isLocked
+        profile {
+          id
+          name
+          email
+          isBot
+        }
+        mk
+        identities {
+          source
+        }
+        enrollments {
+          group {
+            name
+            type
+          }
+        }
+      }
     }
   }
-  ${FULL_INDIVIDUAL}
 `;
 
 const GET_PAGINATED_ORGANIZATIONS = gql`
@@ -348,6 +362,43 @@ const FIND_ORGANIZATION = gql`
   }
 `;
 
+const GET_EXPANDED_INDIVIDUAL = gql`
+  query getExpandedIndividual($uuid: String!) {
+    individuals(filters: { uuid: $uuid }) {
+      entities {
+        mk
+        isLocked
+        profile {
+          id
+          name
+          email
+          isBot
+        }
+        identities {
+          name
+          email
+          username
+          source
+          uuid
+        }
+        enrollments {
+          start
+          end
+          id
+          group {
+            name
+            type
+            numchild
+            parentOrg {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -535,6 +586,16 @@ const findOrganization = (apollo, page, pageSize, filters) => {
   });
 };
 
+const getExpandedIndividual = (apollo, uuid) => {
+  let response = apollo.query({
+    query: GET_EXPANDED_INDIVIDUAL,
+    variables: {
+      uuid: uuid,
+    },
+  });
+  return response;
+};
+
 export {
   getCountries,
   getIndividuals,
@@ -553,4 +614,5 @@ export {
   findOrganization,
   GET_INDIVIDUAL_BYUUID,
   GET_ORGANIZATION,
+  getExpandedIndividual,
 };
