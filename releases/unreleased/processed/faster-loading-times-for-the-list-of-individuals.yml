@@ -1,8 +1,0 @@
----
-title: Faster loading times for the list of individuals
-category: performance
-author: Eva Millán <evamillan@bitergia.com>
-issue: null
-notes: >
-  Improve the performance of the individuals query, reducing the
-  loading time of the table.

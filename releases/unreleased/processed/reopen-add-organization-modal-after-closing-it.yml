@@ -1,8 +1,0 @@
----
-title: Reopen "Add organization" modal after closing it
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: 1023
-notes: >
-  The "Add organization" dialog would not open again after
-  closing it by clicking outside of it.

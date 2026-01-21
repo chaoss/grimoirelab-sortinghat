@@ -1,9 +1,0 @@
----
-title: Show errors when the tables are not empty
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: null
-notes: >
-  The user interface did not show any error messages
-  when the individuals and organizations tables had
-  items.
