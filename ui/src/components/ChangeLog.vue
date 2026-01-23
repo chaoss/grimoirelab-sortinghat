@@ -1,10 +1,13 @@
 <template>
   <div class="fit-content">
-    <v-list-subheader class="text-subtitle-2 mb-2"> Activity </v-list-subheader>
+    <v-list-subheader class="text-subtitle-2 font-weight-medium mb-2">
+      Activity
+    </v-list-subheader>
     <v-timeline v-if="changes.length > 0" side="end">
       <v-timeline-item
         v-for="item in changes"
         :key="item.tuid"
+        color="on-surface-variant"
         dot-color="on-surface-variant"
         size="x-small"
         line-thickness="1"

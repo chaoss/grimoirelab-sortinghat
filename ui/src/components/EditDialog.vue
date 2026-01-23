@@ -12,7 +12,7 @@
           mdi-lead-pencil
         </v-icon>
       </button>
-      <v-btn v-else v-bind="props">
+      <v-btn v-else v-bind="props" size="small" variant="outlined">
         <v-icon start>mdi-plus</v-icon>
         Add
       </v-btn>
@@ -92,5 +92,8 @@ export default {
       opacity: 1;
     }
   }
+}
+.v-btn--variant-outlined {
+  border: thin solid rgba(0, 0, 0, 0.12);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-main>
+  <v-container>
     <div class="d-flex pa-8">
       <v-navigation-drawer
         width="300"
@@ -43,7 +43,7 @@
         </router-view>
       </v-container>
     </div>
-  </v-main>
+  </v-container>
 </template>
 <script>
 export default {

@@ -22,7 +22,13 @@
       <template v-slot:prepend v-if="filterSelector">
         <v-menu :attach="true" offset-y>
           <template v-slot:activator="{ props }">
-            <v-btn class="text-body-1" size="small" height="32" v-bind="props">
+            <v-btn
+              class="text-body-1"
+              size="small"
+              height="32"
+              v-bind="props"
+              variant="outlined"
+            >
               Filters
               <v-icon small right>mdi-menu-down</v-icon>
             </v-btn>
@@ -71,6 +77,7 @@
               class="text-body-1"
               depressed
               height="32"
+              variant="outlined"
               @click="changeOrder"
             >
               <v-icon small>
