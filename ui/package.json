@@ -66,6 +66,7 @@
     "sass": "1.26.5",
     "sass-loader": "^10.4.1",
     "storybook": "8.6.15",
+    "style-loader": "^4.0.0",
     "vue-loader": "^16.4.1",
     "webpack-plugin-vuetify": "^3.0.3"
   },
@@ -74,8 +75,11 @@
   },
   "resolutions": {
     "@vue/cli-plugin-unit-jest/jest": "^30.0.5",
+    "@vue/cli-plugin-eslint/**/cross-spawn": "^6.0.6",
     "@vue/cli-service/**/postcss": "^8.4.33",
     "@vue/cli-service/webpack-dev-server": "^5.2.1",
-    "@storybook/vue3-webpack5/**/braces": "^3.0.3"
+    "@storybook/addon-essentials/**/@babel/runtime": "^7.26.10",
+    "@storybook/vue3-webpack5/**/braces": "^3.0.3",
+    "@storybook/vue3-webpack5/**/qs": "^6.14.1"
   }
 }
