@@ -68,7 +68,7 @@ PyJWT = "^2.4.0"
 uWSGI = "^2.0"
 django-treebeard = "^4.5.1"
 grimoirelab-toolkit = { version = ">=0.3", allow-prereleases = true}
-django-storages = {extras = ["google"], version = "^1.13.2"}
+django-storages = {extras = ["google", "s3"], version = "^1.14.6"}
 google-auth = "^2.18.0"
 
 [tool.poetry.group.dev.dependencies]
