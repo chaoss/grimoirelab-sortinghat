@@ -184,6 +184,7 @@ if 'SORTINGHAT_STATICFILES_STORAGE' in os.environ:
         storage_backend = 'storages.backends.gcloud.GoogleCloudStorage'
     elif os.environ['SORTINGHAT_STATICFILES_STORAGE'].lower() == 'aws':
         storage_backend = 'storages.backends.s3.S3Storage'
+        AWS_LOCATION = os.environ.get('SORTINGHAT_AWS_LOCATION', 'static')
     else:
         raise ValueError(f"'{os.environ['SORTINGHAT_STATICFILES_STORAGE']}' storage is not supported")
     STORAGES = {
