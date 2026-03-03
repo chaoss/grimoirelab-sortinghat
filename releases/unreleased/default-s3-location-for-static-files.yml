@@ -1,0 +1,9 @@
+---
+title: Default S3 location for static files
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  A default S3 location is now configured for static file storage.
+  This prevents errors that could occur during static file cleanup
+  operations.
