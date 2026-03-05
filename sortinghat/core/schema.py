@@ -2037,7 +2037,7 @@ class SortingHatQuery:
         result = []
 
         for job in jobs:
-            job_id = job.get_id()
+            job_id = job.id
             status = job.get_status()
             job_type = job.func_name.split('.')[-1]
             enqueued_at = job.enqueued_at
