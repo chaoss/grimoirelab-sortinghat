@@ -1,8 +1,0 @@
----
-title: Bug fix in job retrieval method
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Fixed an issue with job ID retrieval to ensure compatibility
-  with the latest RQ version.

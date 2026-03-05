@@ -1,5 +1,14 @@
 # Releases
 
+## sortinghat 1.14.2 - (2026-03-05)
+
+**Bug fixes:**
+
+ * Bug fix in job retrieval method\
+   Fixed an issue with job ID retrieval to ensure compatibility with the
+   latest RQ version.
+
+
 ## sortinghat 1.14.1 - (2026-03-03)
 
 **Bug fixes:**
