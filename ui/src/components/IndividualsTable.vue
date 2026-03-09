@@ -72,6 +72,7 @@
             height="34"
             class="mr-4 ml-4 order-2"
             data-cy="merge-button"
+            size="small"
             v-bind="props"
             :disabled="disabledMerge"
             @click="mergeSelected(selected)"
@@ -96,6 +97,7 @@
             class="order-3"
             data-cy="delete-button"
             v-bind="props"
+            size="small"
             :disabled="disabledActions"
             @click="confirmDelete(selected)"
           >
@@ -824,7 +826,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 :deep(.v-data-table__wrapper) {
   overflow-x: hidden;
 }

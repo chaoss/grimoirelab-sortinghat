@@ -1,5 +1,5 @@
 <template>
-  <v-main>
+  <v-container fluid>
     <work-space
       class="ma-md-8 mt-md-6"
       :enroll="enroll"
@@ -80,7 +80,7 @@
     <v-snackbar v-model="snackbar">
       Individual already in work space
     </v-snackbar>
-  </v-main>
+  </v-container>
 </template>
 
 <script>
@@ -119,9 +119,9 @@ import {
   deleteAlias,
   deleteMergeRecommendations,
 } from "../apollo/mutations";
-import IndividualsTable from "../components/IndividualsTable";
-import OrganizationsTable from "../components/OrganizationsTable";
-import WorkSpace from "../components/WorkSpace";
+import IndividualsTable from "../components/IndividualsTable.vue";
+import OrganizationsTable from "../components/OrganizationsTable.vue";
+import WorkSpace from "../components/WorkSpace.vue";
 import { mapActions, mapGetters } from "vuex";
 import { formatIndividuals } from "../utils/actions";
 
