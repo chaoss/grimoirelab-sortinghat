@@ -71,7 +71,7 @@
     "webpack-plugin-vuetify": "^3.0.3"
   },
   "engines": {
-    "node": ">=18 <=20"
+    "node": ">=22 <=24"
   },
   "resolutions": {
     "@vue/cli-plugin-unit-jest/jest": "^30.0.5",

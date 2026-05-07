@@ -1,0 +1,8 @@
+---
+title: Increased minimum version for Node.js to 22
+category: dependency
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: >
+  Node.js 20 reached end of life in April 2026. SortingHat
+  now supports long-term supported versions 22 and 24.
