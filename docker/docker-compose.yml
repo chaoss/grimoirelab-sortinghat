@@ -1,0 +1,86 @@
+version: '2.2'
+
+services:
+    mariadb:
+      image: mariadb:10.6
+      ports:
+        - "3306:3306"
+      environment:
+        - MYSQL_ROOT_PASSWORD=
+        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      healthcheck:
+        test: [ "CMD", "/usr/local/bin/healthcheck.sh", "--su=root", "--connect", "--innodb_initialized" ]
+        retries: 5
+      volumes:
+        - mariadb_db:/var/lib/mysql
+
+
+    redis:
+      image: redis:latest
+      ports:
+        - "6379:6379"
+      healthcheck:
+        test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+        retries: 5
+
+    sortinghat:
+      restart: on-failure:3
+      image: grimoirelab/sortinghat
+      environment:
+        - SORTINGHAT_SECRET_KEY=secret
+        - SORTINGHAT_DB_HOST=mariadb
+        - SORTINGHAT_DB_PORT=3306
+        - SORTINGHAT_DB_DATABASE=sortinghat_test
+        - SORTINGHAT_DB_USER=root
+        - SORTINGHAT_DB_PASSWORD=
+        - SORTINGHAT_REDIS_HOST=redis
+        - SORTINGHAT_REDIS_PASSWORD=
+        - SORTINGHAT_SUPERUSER_USERNAME=admin
+        - SORTINGHAT_SUPERUSER_PASSWORD=admin
+        - SORTINGHAT_ALLOWED_HOST=sortinghat,nginx,localhost,127.0.0.1,[::1]
+        - SORTINGHAT_CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+      expose:
+        - "9314"
+      volumes:
+        - sortinghat-static:/opt/venv/lib/python3.9/site-packages/sortinghat/static/
+      depends_on:
+        mariadb:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+
+    sortinghat_worker:
+      image: grimoirelab/sortinghat-worker
+      environment:
+        - SORTINGHAT_SECRET_KEY=secret
+        - SORTINGHAT_DB_HOST=mariadb
+        - SORTINGHAT_DB_PORT=3306
+        - SORTINGHAT_DB_DATABASE=sortinghat_test
+        - SORTINGHAT_DB_USER=root
+        - SORTINGHAT_DB_PASSWORD=
+        - SORTINGHAT_REDIS_HOST=redis
+        - SORTINGHAT_REDIS_PASSWORD=
+      depends_on:
+        mariadb:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+
+    nginx:
+      restart: on-failure:3
+      image: nginx:latest
+      volumes:
+        - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+        - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params
+        - sortinghat-static:/sortinghat:ro
+      ports:
+        - "8000:8000"
+      depends_on:
+        - sortinghat
+      healthcheck:
+        test: "curl -s --head http://localhost:8000/identities/api/ | grep Set-Cookie || exit 1"
+        retries: 5
+
+volumes:
+  sortinghat-static:
+  mariadb_db:
