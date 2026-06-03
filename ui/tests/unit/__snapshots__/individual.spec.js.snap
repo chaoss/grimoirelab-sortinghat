@@ -86,9 +86,10 @@ exports[`Individual Matches snapshot 1`] = `
                       
                       
                       <button
-                        aria-controls="v-menu-1"
+                        aria-controls="v-menu-v-0"
                         aria-expanded="false"
                         aria-haspopup="menu"
+                        aria-owns="v-menu-v-0"
                         class="hide-icon"
                       >
                         <span>
@@ -140,7 +141,7 @@ exports[`Individual Matches snapshot 1`] = `
                 
                 
                 <button
-                  aria-describedby="v-tooltip-2"
+                  aria-describedby="v-tooltip-v-1"
                   aria-label="Mark as reviewed"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
                   data-testid="review-btn"
@@ -174,7 +175,7 @@ exports[`Individual Matches snapshot 1`] = `
                 
                 
                 <button
-                  aria-describedby="v-tooltip-4"
+                  aria-describedby="v-tooltip-v-3"
                   aria-label="Mark as bot"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
                   type="button"
@@ -207,7 +208,7 @@ exports[`Individual Matches snapshot 1`] = `
                 
                 
                 <button
-                  aria-describedby="v-tooltip-6"
+                  aria-describedby="v-tooltip-v-5"
                   aria-label="Add to workspace"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
                   type="button"
@@ -240,7 +241,7 @@ exports[`Individual Matches snapshot 1`] = `
                 
                 
                 <button
-                  aria-describedby="v-tooltip-8"
+                  aria-describedby="v-tooltip-v-7"
                   aria-label="Lock"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
                   type="button"
@@ -273,10 +274,11 @@ exports[`Individual Matches snapshot 1`] = `
                 
                 
                 <button
-                  aria-controls="v-menu-10"
+                  aria-controls="v-menu-v-9"
                   aria-expanded="false"
                   aria-haspopup="menu"
                   aria-label="See more actions"
+                  aria-owns="v-menu-v-9"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                   type="button"
                 >
@@ -337,9 +339,10 @@ exports[`Individual Matches snapshot 1`] = `
                     
                     
                     <button
-                      aria-controls="v-menu-12"
+                      aria-controls="v-menu-v-11"
                       aria-expanded="false"
                       aria-haspopup="menu"
+                      aria-owns="v-menu-v-11"
                       class="hide-icon"
                     >
                       <span>
@@ -372,9 +375,10 @@ exports[`Individual Matches snapshot 1`] = `
                     
                     
                     <button
-                      aria-controls="v-menu-13"
+                      aria-controls="v-menu-v-12"
                       aria-expanded="false"
                       aria-haspopup="menu"
+                      aria-owns="v-menu-v-12"
                       class="hide-icon"
                     >
                       <span
@@ -407,9 +411,10 @@ exports[`Individual Matches snapshot 1`] = `
                     
                     
                     <button
-                      aria-controls="v-menu-14"
+                      aria-controls="v-menu-v-13"
                       aria-expanded="false"
                       aria-haspopup="menu"
+                      aria-owns="v-menu-v-13"
                       class="hide-icon"
                     >
                       <span
@@ -506,7 +511,7 @@ exports[`Individual Matches snapshot 1`] = `
                   <div
                     class="v-list v-theme--light v-list--density-default v-list--one-line row-border indented"
                     dense=""
-                    role="listbox"
+                    role="list"
                     tabindex="0"
                   >
                     
@@ -514,6 +519,7 @@ exports[`Individual Matches snapshot 1`] = `
                     <div
                       class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line rounded-0 v-list-item--variant-text"
                       draggable="false"
+                      role="listitem"
                     >
                       
                       <!---->
@@ -529,7 +535,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-17"
+                          aria-describedby="v-tooltip-v-16"
                           aria-hidden="true"
                           class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default"
                         />
@@ -582,7 +588,7 @@ exports[`Individual Matches snapshot 1`] = `
                                 
                                 
                                 <button
-                                  aria-describedby="v-tooltip-19"
+                                  aria-describedby="v-tooltip-v-19"
                                   class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
                                   type="button"
                                 >
@@ -656,7 +662,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <button
-                          aria-describedby="v-tooltip-21"
+                          aria-describedby="v-tooltip-v-21"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                           type="button"
                         >
@@ -705,7 +711,7 @@ exports[`Individual Matches snapshot 1`] = `
                   <div
                     class="v-list v-theme--light v-list--density-default v-list--one-line indented"
                     dense=""
-                    role="listbox"
+                    role="list"
                     tabindex="0"
                   >
                     
@@ -713,6 +719,7 @@ exports[`Individual Matches snapshot 1`] = `
                     <div
                       class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line rounded-0 v-list-item--variant-text"
                       draggable="false"
+                      role="listitem"
                     >
                       
                       <!---->
@@ -728,7 +735,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-25"
+                          aria-describedby="v-tooltip-v-25"
                           aria-hidden="true"
                           class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default"
                         />
@@ -781,7 +788,7 @@ exports[`Individual Matches snapshot 1`] = `
                                 
                                 
                                 <button
-                                  aria-describedby="v-tooltip-27"
+                                  aria-describedby="v-tooltip-v-28"
                                   class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
                                   type="button"
                                 >
@@ -865,7 +872,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <button
-                          aria-describedby="v-tooltip-29"
+                          aria-describedby="v-tooltip-v-30"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                           type="button"
                         >
@@ -911,6 +918,7 @@ exports[`Individual Matches snapshot 1`] = `
                     <div
                       class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line rounded-0 v-list-item--variant-text"
                       draggable="false"
+                      role="listitem"
                     >
                       
                       <!---->
@@ -975,7 +983,7 @@ exports[`Individual Matches snapshot 1`] = `
                                 
                                 
                                 <button
-                                  aria-describedby="v-tooltip-35"
+                                  aria-describedby="v-tooltip-v-36"
                                   class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
                                   type="button"
                                 >
@@ -1055,7 +1063,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <button
-                          aria-describedby="v-tooltip-37"
+                          aria-describedby="v-tooltip-v-38"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                           type="button"
                         >
@@ -1101,6 +1109,7 @@ exports[`Individual Matches snapshot 1`] = `
                     <div
                       class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line rounded-0 v-list-item--variant-text"
                       draggable="false"
+                      role="listitem"
                     >
                       
                       <!---->
@@ -1165,7 +1174,7 @@ exports[`Individual Matches snapshot 1`] = `
                                 
                                 
                                 <button
-                                  aria-describedby="v-tooltip-43"
+                                  aria-describedby="v-tooltip-v-44"
                                   class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
                                   type="button"
                                 >
@@ -1247,7 +1256,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <button
-                          aria-describedby="v-tooltip-45"
+                          aria-describedby="v-tooltip-v-46"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                           type="button"
                         >
