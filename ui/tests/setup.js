@@ -7,3 +7,4 @@ class ResizeObserverStub {
 }
 
 window.ResizeObserver = window.ResizeObserver || ResizeObserverStub;
+visualViewport = new EventTarget(); // eslint-disable-line no-global-assign
