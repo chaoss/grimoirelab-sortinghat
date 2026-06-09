@@ -329,7 +329,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@use "../styles/index.scss";
 .drag-zone {
   min-height: 146px;
   transition: background-color 0.1s;

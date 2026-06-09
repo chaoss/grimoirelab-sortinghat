@@ -136,6 +136,28 @@ Build the frontend and watch for changes:
 $ yarn watch --api_url=http://localhost:8000/api/ --publicpath="/static/" --mode development
 ```
 
+#### Using the frontend as a library
+
+The user interface can also be installed as a plugin in an existing Vue project.
+
+Install the package in your project.
+```
+$ yarn add <package tarball URL>
+```
+
+In the file where you create the Vue application, add the plugin and styles.
+```
+import sortinghat from "sortinghat-ui-core"
+import 'sortinghat-ui-core/dist/sortinghat-ui.css'
+
+app.use(sortinghat, {
+  apiURL : <sortinghat API URL>,
+  router: <vue router instance>
+})
+```
+
+Check the [library documentation](ui/package/README.md)
+for more information.
 
 ## SortingHat service
 
