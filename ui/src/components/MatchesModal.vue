@@ -7,9 +7,9 @@
           <p>
             Enqueued job <code>{{ jobId }}</code> to recommend matches.
           </p>
-          <router-link :to="{ name: 'SettingsJobs' }" target="_blank">
+          <a :href="jobsUrl" target="_blank" rel="noopener noreferrer">
             View jobs
-          </router-link>
+          </a>
         </v-alert>
       </v-card-text>
       <v-card-text v-else>
@@ -114,6 +114,12 @@ export default {
       error: null,
     };
   },
+  computed: {
+    jobsUrl() {
+      return this.$router.resolve({ name: "SettingsJobs" }).href;
+    },
+  },
+
   methods: {
     closeModal() {
       this.$emit("update:isOpen", false);
