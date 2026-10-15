@@ -1,0 +1,16 @@
+---
+title: uWSGI request header buffer size
+category: fixed
+author: wurongjie <wurongjie@uniontech.com>
+issue: null
+notes: >
+  Increase the size of the buffer used by uWSGI to read the request
+  headers from 4KB to 32KB. Browsers send the cookies of all the
+  applications served under the same domain, so the headers of the
+  requests sent to SortingHat can easily exceed the uWSGI default when
+  it runs behind a reverse proxy together with other services (e.g.
+  OpenSearch Dashboards). In that case uWSGI discards the connection
+  without processing the request and the reverse proxy reports a 502
+  error, making the individual and organization pages of the UI
+  unusable. The new value can be customized with the
+  `SORTINGHAT_UWSGI_BUFFER_SIZE` environment variable.
