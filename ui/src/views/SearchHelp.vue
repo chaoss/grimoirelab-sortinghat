@@ -122,6 +122,20 @@
           <code>source:"Stack Exchange"</code>.
         </p>
 
+        <p class="text-subtitle-2">Filter by username, email or name</p>
+        <p class="text-body-2">
+          You can search for individuals based on the exact username, email
+          address or name of their identities, using the
+          <code>username</code>, <code>email</code> and
+          <code>name</code> filters. Values that include spaces should be
+          wrapped between double quotes. For example:
+          <code>username:jsmith</code> or <code>name:"John Smith"</code>. When
+          combined with the <code>source</code> filter, all of them must match
+          the same identity, for example
+          <code>source:git username:jsmith</code>. These filters cannot be
+          combined with a search term.
+        </p>
+
         <p class="text-subtitle-2">Filter by enrollment</p>
         <p class="text-body-2">
           You can search for individuals based on the organizations they are

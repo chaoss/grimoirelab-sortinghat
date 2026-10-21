@@ -127,6 +127,44 @@ describe("Search", () => {
     expect(wrapper.vm.filters.source).toBe(expected);
   });
 
+  test.each([
+    ["username", "username:jsmith", "jsmith"],
+    ["username", `username:"jsmith"`, "jsmith"],
+    ["email", "email:jsmith@example.com", "jsmith@example.com"],
+    ["name", `name:"John Smith"`, "John Smith"],
+  ])(
+    "Given %p filter with %p parses its value",
+    async (filter, value, expected) => {
+      const wrapper = mountFunction({
+        data: () => ({ inputValue: value }),
+      });
+
+      const button = wrapper.find('[role="button"].mdi-magnify');
+      await button.trigger("click");
+
+      expect(wrapper.vm.filters[filter]).toBe(expected);
+      expect(wrapper.vm.errorMessage).toBeUndefined();
+    }
+  );
+
+  test.each([
+    "John username:jsmith",
+    "John email:jsmith@example.com",
+    `John name:"John Smith"`,
+  ])("Given a term combined with %p shows an error", async (value) => {
+    const wrapper = mountFunction({
+      data: () => ({ inputValue: value }),
+    });
+
+    const button = wrapper.find('[role="button"].mdi-magnify');
+    await button.trigger("click");
+
+    expect(wrapper.vm.errorMessage).toBe(
+      "Search terms cannot be combined with the username, email or name filters"
+    );
+    expect(wrapper.emitted().search).toBeUndefined();
+  });
+
   test.each(["invalidFilter:value", `invalidFilter:"value"`])(
     "Given an invalid filter %p shows an error",
     async (value) => {

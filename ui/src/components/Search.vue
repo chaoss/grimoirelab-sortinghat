@@ -145,6 +145,18 @@ export default {
           type: "string",
         },
         {
+          filter: "username",
+          type: "string",
+        },
+        {
+          filter: "email",
+          type: "string",
+        },
+        {
+          filter: "name",
+          type: "string",
+        },
+        {
           filter: "enrollment",
           type: "string",
         },
@@ -229,8 +241,14 @@ export default {
         }
       });
 
-      if (terms.length > 0) {
-        this.filters.term = terms.join(" ").trim();
+      const term = terms.join(" ").trim();
+      if (term) {
+        if (["username", "email", "name"].some((f) => f in this.filters)) {
+          this.errorMessage =
+            "Search terms cannot be combined with the username, email or name filters";
+        } else {
+          this.filters.term = term;
+        }
       }
     },
     parseDateFilter(inputValue, filter) {
