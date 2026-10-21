@@ -1,0 +1,12 @@
+---
+title: Exact-match identity filters
+category: added
+author: Jose Javier Merchante <jose.javier.merchante@eclipse-foundation.org>
+issue: null
+notes: >
+  The `individuals` query now accepts `username`, `email` and `name`
+  filters that match exactly, unlike `term`, which matches substrings
+  and can return unrelated individuals. Combined with `source`, they
+  are applied to a single identity, so a specific identity can be
+  found without querying many tables. These filters cannot be
+  combined with `term`.

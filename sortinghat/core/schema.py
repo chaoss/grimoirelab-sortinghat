@@ -463,7 +463,8 @@ class IdentityFilterType(graphene.InputObjectType):
     )
     term = graphene.String(
         required=False,
-        description='Filter individuals whose name, email or username contain the term.'
+        description='Filter individuals whose name, email or username contain the term. '
+                    'It cannot be combined with the username, email or name filters.'
     )
     is_locked = graphene.Boolean(
         required=False,
@@ -485,6 +486,18 @@ class IdentityFilterType(graphene.InputObjectType):
     source = graphene.String(
         required=False,
         description='Filters individuals by the data source of their identities.'
+    )
+    username = graphene.String(
+        required=False,
+        description='Filters individuals by the exact username of their identities.'
+    )
+    email = graphene.String(
+        required=False,
+        description='Filters individuals by the exact email address of their identities.'
+    )
+    name = graphene.String(
+        required=False,
+        description='Filters individuals by the exact name of their identities.'
     )
     enrollment = graphene.String(
         required=False,
@@ -1826,6 +1839,10 @@ class SortingHatQuery:
                             page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                             order_by='mk',
                             **kwargs):
+        if filters and 'term' in filters and any(f in filters for f in ('username', 'email', 'name')):
+            raise InvalidFilterError(filter_name='term',
+                                     msg='it cannot be combined with the username, email or name filters')
+
         query = Individual.objects.prefetch_related('identities').all()
 
         if order_by and (order_by in ['-identitiesCount', 'identitiesCount']):
@@ -1867,9 +1884,19 @@ class SortingHatQuery:
                                                          Q(country__code=country) |
                                                          Q(country__alpha3=country))
                                                  .values_list('individual__mk')))
-        if filters and 'source' in filters:
+        if filters and ('source' in filters or 'username' in filters or
+                        'email' in filters or 'name' in filters):
+            identity_filters = {}
+            if 'source' in filters:
+                identity_filters['source'] = filters['source']
+            if 'username' in filters:
+                identity_filters['username'] = filters['username']
+            if 'email' in filters:
+                identity_filters['email'] = filters['email']
+            if 'name' in filters:
+                identity_filters['name'] = filters['name']
             query = query.filter(mk__in=Subquery(Identity.objects
-                                                 .filter(source=filters['source'])
+                                                 .filter(**identity_filters)
                                                  .values_list('individual__mk')))
         if filters and 'enrollment' in filters:
             query = query.filter(mk__in=Subquery(Enrollment.objects
