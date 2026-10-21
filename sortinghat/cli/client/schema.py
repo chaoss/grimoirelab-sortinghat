@@ -82,7 +82,7 @@ class GroupFilterType(sgqlc.types.Input):
 
 class IdentityFilterType(sgqlc.types.Input):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'term', 'is_locked', 'is_bot', 'gender', 'country', 'source', 'enrollment', 'enrollment_parent_org', 'enrollment_date', 'is_enrolled', 'last_updated', 'last_reviewed', 'is_reviewed')
+    __field_names__ = ('uuid', 'term', 'is_locked', 'is_bot', 'gender', 'country', 'source', 'username', 'email', 'name', 'enrollment', 'enrollment_parent_org', 'enrollment_date', 'is_enrolled', 'last_updated', 'last_reviewed', 'is_reviewed')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
     term = sgqlc.types.Field(String, graphql_name='term')
     is_locked = sgqlc.types.Field(Boolean, graphql_name='isLocked')
@@ -90,6 +90,9 @@ class IdentityFilterType(sgqlc.types.Input):
     gender = sgqlc.types.Field(String, graphql_name='gender')
     country = sgqlc.types.Field(String, graphql_name='country')
     source = sgqlc.types.Field(String, graphql_name='source')
+    username = sgqlc.types.Field(String, graphql_name='username')
+    email = sgqlc.types.Field(String, graphql_name='email')
+    name = sgqlc.types.Field(String, graphql_name='name')
     enrollment = sgqlc.types.Field(String, graphql_name='enrollment')
     enrollment_parent_org = sgqlc.types.Field(String, graphql_name='enrollmentParentOrg')
     enrollment_date = sgqlc.types.Field(String, graphql_name='enrollmentDate')

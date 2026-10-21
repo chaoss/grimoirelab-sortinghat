@@ -113,6 +113,7 @@ AUTHORIZATION_ERROR = "You do not have permission to perform this action"
 PARSE_DATE_INVALID_DATE_ERROR = "{} is not a valid date"
 PARSE_DATE_INVALID_FORMAT_ERROR = "Filter format is not valid"
 INVALID_FILTER_DATE_ERROR = "Error in {} filter: {} is not a valid date"
+INVALID_FILTER_TERM_ERROR = "Error in term filter: it cannot be combined with the username, email or name filters"
 INVALID_FILTER_FORMAT_ERROR = "Error in {} filter: Filter format is not valid"
 INVALID_FILTER_RANGE_ERROR = "Error in {} filter: Date range is invalid. {}"
 FROM_DATE_EMPTY_ERROR = "'from_date' cannot be empty"
@@ -657,6 +658,54 @@ SH_INDIVIDUALS_SOURCE_FILTER = """{
         mk
         identities {
           source
+        }
+      }
+    }
+}"""
+SH_INDIVIDUALS_USERNAME_FILTER = """{
+    individuals(filters: {username: "%s"}) {
+      entities {
+        mk
+        identities {
+          username
+        }
+      }
+    }
+}"""
+SH_INDIVIDUALS_USERNAME_SOURCE_FILTER = """{
+    individuals(filters: {username: "%s", source: "%s"}) {
+      entities {
+        mk
+        identities {
+          username
+          source
+        }
+      }
+    }
+}"""
+SH_INDIVIDUALS_TERM_AND_EXACT_FILTER = """{
+    individuals(filters: {term: "%s", %s: "%s"}) {
+      entities {
+        mk
+      }
+    }
+}"""
+SH_INDIVIDUALS_EMAIL_FILTER = """{
+    individuals(filters: {email: "%s"}) {
+      entities {
+        mk
+        identities {
+          email
+        }
+      }
+    }
+}"""
+SH_INDIVIDUALS_NAME_FILTER = """{
+    individuals(filters: {name: "%s"}) {
+      entities {
+        mk
+        identities {
+          name
         }
       }
     }
@@ -3466,6 +3515,213 @@ class TestQueryIndividuals(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         executed = client.execute(SH_INDIVIDUALS_SOURCE_FILTER % 'slack',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+    def test_filter_username(self):
+        """Check whether it returns the individual searched when using the username filter"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                username='jsmith-efid-12345',
+                                source='gitlab',
+                                individual=indv)
+
+        indv2 = Individual.objects.create(mk='37d7859d8dcc34e6b04eca981d1aef54a450849e')
+        Profile.objects.create(email=None,
+                               individual=indv2)
+        Identity.objects.create(uuid='B002',
+                                name='Jane Roe',
+                                username='jroe',
+                                source='git',
+                                individual=indv2)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_USERNAME_FILTER % 'jsmith-efid-12345',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_username_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing username"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                username='jsmith-efid-12345',
+                                source='gitlab',
+                                individual=indv)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_USERNAME_FILTER % 'does-not-exist',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+    def test_filter_username_and_source(self):
+        """Check it only matches when username and source belong to the same identity"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                username='12345',
+                                source='gitlab',
+                                individual=indv)
+        Identity.objects.create(uuid='B002',
+                                name='John Doe',
+                                username='12345',
+                                source='git',
+                                individual=indv)
+
+        indv2 = Individual.objects.create(mk='37d7859d8dcc34e6b04eca981d1aef54a450849e')
+        Profile.objects.create(email=None,
+                               individual=indv2)
+        Identity.objects.create(uuid='B003',
+                                name='Jane Roe',
+                                username='12345',
+                                source='slack',
+                                individual=indv2)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_USERNAME_SOURCE_FILTER % ('12345', 'gitlab'),
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_email(self):
+        """Check whether it returns the individual searched when using the email filter"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                email='jsmith@example.com',
+                                source='gitlab',
+                                individual=indv)
+
+        indv2 = Individual.objects.create(mk='37d7859d8dcc34e6b04eca981d1aef54a450849e')
+        Profile.objects.create(email=None,
+                               individual=indv2)
+        Identity.objects.create(uuid='B002',
+                                name='Jane Roe',
+                                email='jroe@example.com',
+                                source='git',
+                                individual=indv2)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_EMAIL_FILTER % 'jsmith@example.com',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_email_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing email"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                email='jsmith@example.com',
+                                source='gitlab',
+                                individual=indv)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_EMAIL_FILTER % 'does-not-exist@example.com',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+    def test_filter_name(self):
+        """Check whether it returns the individual searched when using the name filter"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                source='gitlab',
+                                individual=indv)
+
+        indv2 = Individual.objects.create(mk='37d7859d8dcc34e6b04eca981d1aef54a450849e')
+        Profile.objects.create(email=None,
+                               individual=indv2)
+        Identity.objects.create(uuid='B002',
+                                name='Jane Roe',
+                                source='git',
+                                individual=indv2)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_NAME_FILTER % 'John Doe',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_term_with_exact_filters(self):
+        """Check term cannot be combined with username, email or name"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                email='jdoe@example.com',
+                                username='jdoe',
+                                source='git',
+                                individual=indv)
+
+        client = graphene.test.Client(schema)
+
+        for exact_filter, value in (('username', 'jdoe'),
+                                    ('email', 'jdoe@example.com'),
+                                    ('name', 'John Doe')):
+            with self.subTest(exact_filter=exact_filter):
+                executed = client.execute(SH_INDIVIDUALS_TERM_AND_EXACT_FILTER %
+                                          ('john', exact_filter, value),
+                                          context_value=self.context_value)
+
+                msg = executed['errors'][0]['message']
+                self.assertEqual(msg, INVALID_FILTER_TERM_ERROR)
+
+    def test_filter_name_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing name"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                source='gitlab',
+                                individual=indv)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_NAME_FILTER % 'does-not-exist',
                                   context_value=self.context_value)
 
         individuals = executed['data']['individuals']['entities']
