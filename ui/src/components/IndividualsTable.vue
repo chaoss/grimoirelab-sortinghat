@@ -211,7 +211,10 @@
         </div>
       </template>
       <template v-slot:no-data>
-        <p v-if="Object.keys(filters).length > 0">
+        <p v-if="searchRequired && !hasSearched">
+          Search for identities to display results.
+        </p>
+        <p v-else-if="Object.keys(filters).length > 0">
           No results matched your search.
         </p>
         <p v-else>No data available</p>
@@ -413,6 +416,11 @@ export default {
       type: String,
       required: false,
     },
+    searchRequired: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     fetchOrganizations: {
       type: Function,
       required: true,
@@ -441,6 +449,7 @@ export default {
   data() {
     return {
       filters: {},
+      hasSearched: false,
       headers: [
         { key: "name", title: "Individual", sortable: false },
         { key: "email", title: "Email", align: "center", sortable: false },
@@ -489,7 +498,9 @@ export default {
     },
   },
   created() {
-    this.queryIndividuals(1);
+    if (!this.searchRequired) {
+      this.queryIndividuals(1);
+    }
   },
   methods: {
     async queryIndividuals(
@@ -497,7 +508,7 @@ export default {
       filters = this.filters,
       orderBy = this.orderBy
     ) {
-      if (this.disabledSearch) return;
+      if (this.searchRequired && !this.hasSearched) return;
       this.loading = true;
       this.error = null;
       try {
@@ -507,6 +518,7 @@ export default {
           filters,
           orderBy
         );
+        if (this.searchRequired && !this.hasSearched) return;
         if (response) {
           this.individuals = formatIndividuals(
             response.data.individuals.entities
@@ -767,8 +779,30 @@ export default {
     filterSearch(filters, orderBy, inputValue) {
       this.filters = filters;
       this.orderBy = orderBy;
-      this.queryIndividuals(1);
+
+      let query;
+      if (this.searchRequired) {
+        this.hasSearched = Object.keys(filters || {}).length > 0;
+
+        if (this.hasSearched) {
+          query = this.queryIndividuals(1);
+        } else {
+          this.individuals = [];
+          this.expandedItems = [];
+          this.page = 1;
+          this.pageCount = 0;
+          this.totalResults = 0;
+          this.selected = [];
+          this.allSelected = false;
+          this.error = null;
+          this.loading = false;
+        }
+      } else {
+        query = this.queryIndividuals(1);
+      }
+
       this.$emit("setFilters", inputValue);
+      return query;
     },
     selectAll(value) {
       this.individuals.forEach((individual) => (individual.isSelected = value));

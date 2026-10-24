@@ -21,6 +21,7 @@
       <v-col lg="8" sm="12" class="pt-0 pl-0 pr-sm-0 pr-lg-4">
         <individuals-table
           class="individuals"
+          search-required
           is-expandable
           outlined
           :fetch-page="getIndividualsPage"

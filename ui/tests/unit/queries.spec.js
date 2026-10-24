@@ -226,13 +226,14 @@ describe("IndividualsData", () => {
 });
 
 describe("IndividualsTable", () => {
-  const mountFunction = (mocks, options) => {
+  const mountFunction = (mocks, options = {}) => {
     return mount(IndividualsTable, {
       shallow: true,
       global: {
         plugins: [vuetify],
         ...mocks,
       },
+      ...options,
       props: {
         fetchPage: () => {},
         mergeItems: () => {},
@@ -249,10 +250,60 @@ describe("IndividualsTable", () => {
         withdraw: () => {},
         updateEnrollment: () => {},
         recommendMatches: () => {},
+        ...(options.props || {}),
       },
-      ...options,
     });
   };
+
+  test("Does not load identities before searching when search is required", async () => {
+    const fetchPage = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({}, {
+      props: { fetchPage, searchRequired: true },
+    });
+
+    await nextTick();
+
+    expect(fetchPage).not.toHaveBeenCalled();
+    expect(wrapper.vm.individuals).toEqual([]);
+    expect(wrapper.vm.totalResults).toBe(0);
+  });
+
+  test("Loads identities after a search when search is required", async () => {
+    const fetchPage = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({}, {
+      props: { fetchPage, searchRequired: true },
+    });
+
+    await wrapper.vm.filterSearch({ term: "alice" }, null, "alice");
+
+    expect(fetchPage).toHaveBeenCalledTimes(1);
+    expect(fetchPage).toHaveBeenCalledWith(1, 10, { term: "alice" }, null);
+  });
+
+  test("Clearing a search resets results without fetching all identities", async () => {
+    const fetchPage = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({}, {
+      props: { fetchPage, searchRequired: true },
+    });
+
+    await wrapper.setData({
+      hasSearched: true,
+      filters: { term: "alice" },
+      individuals: [{ uuid: "1" }],
+      page: 2,
+      pageCount: 4,
+      totalResults: 31,
+      selected: [{ uuid: "1" }],
+    });
+
+    await wrapper.vm.filterSearch({}, null, "");
+
+    expect(fetchPage).not.toHaveBeenCalled();
+    expect(wrapper.vm.individuals).toEqual([]);
+    expect(wrapper.vm.pageCount).toBe(0);
+    expect(wrapper.vm.totalResults).toBe(0);
+    expect(wrapper.vm.hasSearched).toBe(false);
+  });
 
   test("Mock query for getPaginatedIndividuals", async () => {
     const query = jest.fn(() => Promise.resolve(paginatedResponse));
