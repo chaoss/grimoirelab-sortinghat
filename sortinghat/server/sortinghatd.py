@@ -75,6 +75,13 @@ def sortinghatd(config, devel, no_auth):
     env['UWSGI_WORKERS'] = env.get('SORTINGHAT_UWSGI_WORKERS', '1')
     env['UWSGI_THREADS'] = env.get('SORTINGHAT_UWSGI_THREADS', '4')
 
+    # Increase the buffer used by uWSGI to read the request headers. The
+    # uWSGI default (4KB) is not enough when browsers send the cookies of
+    # the other applications served under the same domain (e.g. OpenSearch
+    # Dashboards), which makes uWSGI discard the connection and the reverse
+    # proxy return a 502 error.
+    env['UWSGI_BUFFER_SIZE'] = env.get('SORTINGHAT_UWSGI_BUFFER_SIZE', '32768')
+
     # These options shouldn't be modified
     env['UWSGI_MASTER'] = "true"
     env['UWSGI_ENABLE_THREADS'] = "true"
