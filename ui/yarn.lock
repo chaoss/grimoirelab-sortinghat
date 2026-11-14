@@ -10901,9 +10901,9 @@ synckit@^0.11.8:
     "@pkgr/core" "^0.3.6"
 
 systeminformation@^5.31.1:
-  version "5.31.7"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.31.7.tgz#32009a8790af048299ea46d01e9f306adc1abb45"
-  integrity sha512-/8NC53e5nP9nmhn42/ncdOkyJnOoue/Vy+tJOyUGd1Yv66G069wK4rrziwhrqDETgk78CudTQupw5z19S5uoZw==
+  version "5.33.22"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.33.22.tgz#c4345146ceae7883bd89b3be4715c4455994a569"
+  integrity sha512-RXcsXv2cXGTJljCratq2iJxc4XRuelHEek8OOCKn4gq+73EytipintntC6rqaw/iHOOZdiLTPFRrwjV3IVk2+g==
 
 table@^6.0.9:
   version "6.9.0"
