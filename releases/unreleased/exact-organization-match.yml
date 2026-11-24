@@ -1,0 +1,13 @@
+---
+title: Organizations with short names not found when affiliating
+category: fixed
+author: Tanmay Baranwal <baranwaltanmay16@gmail.com>
+issue: 957
+notes: >
+  The organization selector only showed the first 10 organizations
+  whose name, domains or aliases included the search, ordered by
+  name. Organizations with a short name that is part of many others,
+  like "ING", could not be selected, and the selector offered to
+  create them again. If the search doesn't return an exact match,
+  the selector now looks for an organization with that name or alias
+  and lists it first.
