@@ -1,0 +1,10 @@
+---
+title: Drop Python 3.10 support
+category: removed
+author: Santiago Dueñas <sduenas@grimoirelab.org>
+issue: null
+notes: >
+  Python 3.10 reached its end of life in October 2026,
+  which means it won't receive new updates or patches
+  to fix security issues. So, this package only works
+  with Python >= 3.11 from now on.

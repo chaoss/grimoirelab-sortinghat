@@ -21,7 +21,7 @@
 
 import logging
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from .. import jobs
 from .backend import find_import_identities_backends
@@ -48,7 +48,7 @@ def on_success_job(job, connection, result, *args, **kwargs):
         logger.error("ScheduledTask not found. Not rescheduling.")
         return
 
-    task.last_execution = datetime.now(timezone.utc)
+    task.last_execution = datetime.now(UTC)
     task.executions = task.executions + 1
     task.failed = False
 
@@ -63,7 +63,7 @@ def on_success_job(job, connection, result, *args, **kwargs):
         task.scheduled_datetime = None
         task.job_id = None
     else:
-        scheduled_datetime = datetime.now(timezone.utc) + timedelta(minutes=task.interval)
+        scheduled_datetime = datetime.now(UTC) + timedelta(minutes=task.interval)
         ctx = job.kwargs.pop('ctx')
         jobs.schedule_task(ctx, jobs.import_identities, task, scheduled_datetime=scheduled_datetime, **job.kwargs)
 
@@ -87,7 +87,7 @@ def on_failed_job(job, connection, result, *args, **kwargs):
         logger.error("ScheduledTask not found. Not rescheduling.")
         return
 
-    task.last_execution = datetime.now(timezone.utc)
+    task.last_execution = datetime.now(UTC)
     task.executions = task.executions + 1
     task.failures = task.failures + 1
     task.failed = True
@@ -97,7 +97,7 @@ def on_failed_job(job, connection, result, *args, **kwargs):
         task.scheduled_datetime = None
         task.job_id = None
     else:
-        scheduled_datetime = datetime.now(timezone.utc) + timedelta(minutes=task.interval)
+        scheduled_datetime = datetime.now(UTC) + timedelta(minutes=task.interval)
         ctx = job.kwargs.pop('ctx')
         jobs.schedule_task(ctx, jobs.import_identities, task, scheduled_datetime=scheduled_datetime, **job.kwargs)
         logger.info(f"Reschedule task ID '{task.id}' at '{scheduled_datetime}'.")
