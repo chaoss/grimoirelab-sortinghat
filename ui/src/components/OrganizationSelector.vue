@@ -64,7 +64,18 @@ export default {
       const filters = value ? { term: value } : {};
       const response = await this.fetchOrganizations(1, 10, filters);
       if (response) {
-        this.organizations = response.entities;
+        let organizations = response.entities;
+        // The search only returns the first page of organizations that
+        // include the term, which may not contain an exact match.
+        if (value && !organizations.some((org) => this.isMatch(org, value))) {
+          const exactMatch = await this.fetchOrganizations(1, 10, {
+            name: value,
+          });
+          if (exactMatch && exactMatch.entities.length > 0) {
+            organizations = [...exactMatch.entities, ...organizations];
+          }
+        }
+        this.organizations = organizations;
         this.isLoading = false;
       }
     },
@@ -82,6 +93,15 @@ export default {
         this.$emit("error", this.$getErrorMessage(error));
       }
     },
+    isMatch(organization, value) {
+      const term = value.toLowerCase();
+      return (
+        organization.name.toLowerCase() === term ||
+        (organization.aliases || []).some(
+          (alias) => alias.alias.toLowerCase() === term
+        )
+      );
+    },
     filterItems(item) {
       // Return all items because the query is already filtered
       return item;
@@ -98,14 +118,7 @@ export default {
     appendContent() {
       return (
         this.searchValue &&
-        !this.organizations.some(
-          (org) =>
-            org.name.toLowerCase() === this.searchValue.toLowerCase() ||
-            org.aliases.some(
-              (alias) =>
-                alias.alias.toLowerCase() === this.searchValue.toLowerCase()
-            )
-        )
+        !this.organizations.some((org) => this.isMatch(org, this.searchValue))
       );
     },
   },
