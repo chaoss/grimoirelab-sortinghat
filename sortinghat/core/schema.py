@@ -1608,7 +1608,7 @@ class UpdateScheduledTask(graphene.Mutation):
 
         # Update next execution time if the interval is updated
         if 'interval' in data:
-            new_dt = datetime.datetime.now(datetime.timezone.utc) \
+            new_dt = datetime.datetime.now(datetime.UTC) \
                 + datetime.timedelta(minutes=task.interval)
             if task.scheduled_datetime and task.scheduled_datetime > new_dt:
                 if task.job_id:
